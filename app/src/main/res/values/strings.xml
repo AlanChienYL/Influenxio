@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Influenxio</string>
+    <string name="next">Next %1$d</string>
+    <string name="waiting">Waiting: %1$d</string>
+</resources>
