@@ -5,10 +5,13 @@ import android.os.Message
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import java.util.*
 import java.util.concurrent.locks.ReentrantLock
+import kotlin.collections.ArrayList
+import kotlin.concurrent.scheduleAtFixedRate
 import kotlin.random.Random
 
-class Bank(val handler: Handler) {
+class Bank(private val handler: Handler) {
     private val counterNames: List<String> = arrayListOf("Amy", "Bob", "Cory", "Dora")
     val counters: MutableList<Counter> = arrayListOf()
     private val numberList = ArrayList<Int>()
@@ -42,18 +45,16 @@ class Bank(val handler: Handler) {
     }
 
     private fun createCounter(counter: Counter) {
-        Thread {
-            while (true) {
-                callNumber()?.let { customer ->
-                    counter.processing = customer.toString()
-                    updateCounter(counter)
-                    Thread.sleep(Random.nextLong(1000, 2000))
-                    counter.processing = "idle"
-                    counter.processed += "$customer,"
-                    updateCounter(counter)
-                }
+        Timer(counter.name, true).scheduleAtFixedRate(0, 1000) {
+            callNumber()?.let { customer ->
+                counter.processing = customer.toString()
+                updateCounter(counter)
+                Thread.sleep(Random.nextLong(1000, 2000))
+                counter.processing = "idle"
+                counter.processed += "$customer,"
+                updateCounter(counter)
             }
-        }.start()
+        }
     }
 
     @WorkerThread
